@@ -1,0 +1,38 @@
+# Dependencies & build
+node_modules
+.nuxt
+.output
+dist
+
+# Git & IDE
+.git
+.gitignore
+.cursor
+.idea
+.vscode
+*.md
+
+# Env (secrets — set di orchestrator / build-arg, jangan di COPY)
+.env
+.env.*
+!.env.example
+
+# Logs & cache
+*.log
+npm-debug.log*
+.cache
+.turbo
+
+# OS & misc
+.DS_Store
+Thumbs.db
+*.local
+
+# Docker
+Dockerfile*
+docker-compose*.yml
+.dockerignore
+
+# Test & coverage
+coverage
+.nyc_output

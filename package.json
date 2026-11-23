@@ -1,0 +1,41 @@
+{
+  "name": "nuxt-boilerplate-web",
+  "description": "Boilerplate frontend Nuxt 4 & Nuxt UI dengan contoh modul CRUD.",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "build": "nuxt build",
+    "dev": "nuxt dev",
+    "generate": "nuxt generate",
+    "lint": "eslint . --ext .ts,.js --ignore-pattern .nuxt --ignore-pattern .output --ignore-pattern dist",
+    "lint:fix": "eslint . --ext .ts,.js --fix --ignore-pattern .nuxt --ignore-pattern .output --ignore-pattern dist",
+    "typecheck": "nuxt typecheck",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "ci:check": "npm run lint && npm run typecheck && npm run test && npm run build",
+    "format": "prettier . --write",
+    "format:check": "prettier . --check",
+    "preview": "nuxt preview",
+    "postinstall": "nuxt prepare"
+  },
+  "dependencies": {
+    "@cloudcare/browser-rum": "^3.3.0",
+    "@nuxt/ui": "4.6.1",
+    "nuxt": "^4.2.1",
+    "vue": "^3.5.25",
+    "vue-router": "^5.0.3"
+  },
+  "devDependencies": {
+    "@iconify-json/heroicons": "^1.2.3",
+    "@types/node": "^25.5.2",
+    "@typescript-eslint/eslint-plugin": "^7.18.0",
+    "@typescript-eslint/parser": "^7.18.0",
+    "eslint": "^8.57.1",
+    "nuxt-gtag": "^4.1.0",
+    "prettier": "^3.6.2",
+    "tailwindcss": "^4.2.1",
+    "typescript": "^5.7.2",
+    "vitest": "^3.2.4",
+    "vue-tsc": "^3.2.6"
+  }
+}
