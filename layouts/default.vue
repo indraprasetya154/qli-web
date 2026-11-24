@@ -21,9 +21,6 @@ const appName = computed(
           <NuxtLink to="/dashboard" class="hover:text-zinc-900">
             Dashboard
           </NuxtLink>
-          <NuxtLink to="/reference/category" class="hover:text-zinc-900">
-            Kategori
-          </NuxtLink>
         </nav>
       </div>
     </header>

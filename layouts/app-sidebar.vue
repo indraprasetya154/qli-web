@@ -119,17 +119,6 @@ const navSections = computed<{ title: string; items: NavItem[] }[]>(() => {
           },
         ]
       : []),
-    {
-      title: "Referensi",
-      items: [
-        {
-          to: "/reference/category",
-          label: "Kategori",
-          icon: "i-heroicons-tag",
-          match: (path: string) => path.startsWith("/reference/category"),
-        },
-      ],
-    },
   ];
 });
 

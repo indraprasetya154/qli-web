@@ -74,6 +74,9 @@ useHead({
             Paket ini disiapkan setelah CV kamu direview tim Qatar Loker Info.
           </p>
           <p class="mt-2 max-w-2xl text-sm font-medium text-[#1a1919]">
+            Berlaku {{ pkg.duration_months ?? 1 }} bulan
+          </p>
+          <p class="mt-2 max-w-2xl text-sm font-medium text-[#1a1919]">
             Harga paket ditentukan setelah review CV.
           </p>
 

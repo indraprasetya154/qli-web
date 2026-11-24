@@ -92,6 +92,9 @@ const cta = computed(() => {
           <p class="mt-2 text-sm leading-relaxed text-[#575654]">
             {{ pkg.description ?? 'Layanan konsultasi dan pendampingan.' }}
           </p>
+          <p class="mt-2 text-sm font-medium text-[#1a1919]">
+            Berlaku {{ pkg.duration_months ?? 1 }} bulan
+          </p>
           <ul class="mt-5 flex-1 space-y-2.5">
             <li
               v-for="feature in pkg.features"

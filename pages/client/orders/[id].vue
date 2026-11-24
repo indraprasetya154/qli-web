@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import type { PublicOrder } from '~/types/order'
 import { apiFetchErrorMessage } from '~/utils/apiFormat'
-import { formatDateTimeDmyHm } from '~/utils/dateFormat'
+import { formatDateIdDmyLongMonthWib, formatDateTimeDmyHm } from '~/utils/dateFormat'
 import {
   formatRupiah,
   ORDER_STATUS_LABEL,
@@ -15,7 +15,7 @@ definePageMeta({ layout: 'app-sidebar', middleware: ['client'] })
 
 const route = useRoute()
 const orderId = computed(() => String(route.params.id ?? ''))
-const { apiFetch } = useApi()
+const { apiFetch, apiPost } = useApi()
 
 const { setBreadcrumbs } = useAppLayout()
 setBreadcrumbs([
@@ -31,6 +31,68 @@ const { data, pending, error, refresh } = useAsyncData(`client-order-${orderId.v
 
 const order = computed(() => data.value?.data)
 const errMsg = computed(() => apiFetchErrorMessage(error.value))
+
+const file = ref<File | null>(null)
+const fileInput = ref<HTMLInputElement | null>(null)
+const fileError = ref('')
+const uploading = ref(false)
+const uploadMessage = ref('')
+
+const canUpload = computed(
+  () => order.value?.payment_status === 'PENDING' || order.value?.payment_status === 'REJECTED'
+)
+
+function onFileChange(event: Event) {
+  fileError.value = ''
+  uploadMessage.value = ''
+  const input = event.target as HTMLInputElement
+  const selected = input.files?.[0] ?? null
+  if (!selected) {
+    file.value = null
+    return
+  }
+  const allowed = ['image/jpeg', 'image/png', 'image/webp', 'application/pdf']
+  if (!allowed.includes(selected.type)) {
+    fileError.value = 'Gunakan file JPG, PNG, WEBP, atau PDF.'
+  } else if (selected.size > 5 * 1024 * 1024) {
+    fileError.value = 'Ukuran file maksimal 5 MB.'
+  } else {
+    file.value = selected
+    return
+  }
+  file.value = null
+  input.value = ''
+}
+
+async function uploadProof() {
+  fileError.value = ''
+  uploadMessage.value = ''
+  if (!order.value) return
+  if (!file.value) {
+    fileError.value = 'Pilih file bukti transfer terlebih dahulu.'
+    return
+  }
+
+  uploading.value = true
+  try {
+    const formData = new FormData()
+    formData.append('email', order.value.customer.email)
+    formData.append('proof', file.value)
+
+    await apiPost(
+      `/v1/order/${encodeURIComponent(order.value.order_number)}/payment-proof`,
+      formData as unknown as Record<string, unknown>
+    )
+    file.value = null
+    if (fileInput.value) fileInput.value.value = ''
+    await refresh()
+    uploadMessage.value = 'Bukti pembayaran diterima. Pesanan menunggu verifikasi admin.'
+  } catch (e) {
+    fileError.value = apiFetchErrorMessage(e)
+  } finally {
+    uploading.value = false
+  }
+}
 </script>
 
 <template>
@@ -87,6 +149,20 @@ const errMsg = computed(() => apiFetchErrorMessage(error.value))
               <dt class="text-zinc-500">Total</dt>
               <dd class="font-semibold text-zinc-900">{{ formatRupiah(order.grand_total) }}</dd>
             </div>
+            <div>
+              <dt class="text-zinc-500">Masa berlaku</dt>
+              <dd class="text-zinc-900">{{ order.package?.duration_months ?? 1 }} bulan</dd>
+            </div>
+            <div>
+              <dt class="text-zinc-500">Aktif sampai</dt>
+              <dd class="text-zinc-900">
+                {{
+                  order.active_until
+                    ? formatDateIdDmyLongMonthWib(order.active_until)
+                    : 'Aktif setelah pembayaran terverifikasi'
+                }}
+              </dd>
+            </div>
             <div v-if="order.voucher > 0">
               <dt class="text-zinc-500">Diskon</dt>
               <dd class="text-zinc-900">
@@ -132,6 +208,57 @@ const errMsg = computed(() => apiFetchErrorMessage(error.value))
           <p class="mt-1 text-sm text-zinc-600">a.n. {{ order.payment_account.account_holder }}</p>
         </div>
 
+        <div v-if="canUpload" class="rounded-2xl border border-zinc-200 bg-white p-5 sm:p-6">
+          <h2 class="text-sm font-semibold text-zinc-900">Unggah bukti transfer</h2>
+          <p class="mt-2 text-sm text-zinc-600">Format JPG, PNG, WEBP, atau PDF. Maksimal 5 MB.</p>
+          <form class="mt-4 space-y-3" @submit.prevent="uploadProof">
+            <UFormField label="File bukti transfer" required>
+              <input
+                ref="fileInput"
+                type="file"
+                accept="image/jpeg,image/png,image/webp,application/pdf"
+                class="block w-full cursor-pointer rounded-md border border-zinc-200 bg-white px-3 py-2 text-sm text-zinc-900 file:mr-3 file:rounded file:border-0 file:bg-zinc-100 file:px-3 file:py-1.5 file:text-sm file:font-medium file:text-zinc-700"
+                @change="onFileChange"
+              />
+            </UFormField>
+            <UAlert v-if="fileError" color="error" variant="soft" :title="fileError" />
+            <UAlert v-if="uploadMessage" color="success" variant="soft" :title="uploadMessage" />
+            <UButton
+              type="submit"
+              color="primary"
+              size="sm"
+              :loading="uploading"
+              :disabled="uploading"
+            >
+              Kirim Bukti Pembayaran
+            </UButton>
+          </form>
+        </div>
+
+        <div
+          v-else-if="order.payment_status === 'WAITING_VERIFICATION'"
+          class="rounded-2xl border border-zinc-200 bg-white p-5 sm:p-6"
+        >
+          <UAlert
+            color="info"
+            variant="soft"
+            title="Bukti pembayaran sedang diverifikasi."
+            description="Kamu akan bisa mengunggah ulang jika admin menolak bukti sebelumnya."
+          />
+        </div>
+
+        <div
+          v-else-if="order.payment_status === 'PAID'"
+          class="rounded-2xl border border-zinc-200 bg-white p-5 sm:p-6"
+        >
+          <UAlert
+            color="success"
+            variant="soft"
+            title="Pembayaran sudah diverifikasi."
+            description="Akun portal akan dibuat atau ditautkan oleh admin."
+          />
+        </div>
+
         <div v-if="order.package" class="rounded-2xl border border-zinc-200 bg-white p-5 sm:p-6">
           <h2 class="text-sm font-semibold text-zinc-900">Cakupan layanan</h2>
           <ul class="mt-3 space-y-2 text-sm text-zinc-700">
@@ -146,27 +273,6 @@ const errMsg = computed(() => apiFetchErrorMessage(error.value))
           </ul>
         </div>
       </section>
-
-      <UAlert
-        v-if="order.status === 'PENDING_PAYMENT'"
-        color="warning"
-        variant="soft"
-        title="Pesanan menunggu pembayaran."
-        description="Buka halaman status pesanan untuk melihat instruksi transfer dan mengunggah bukti pembayaran."
-        class="mt-2"
-      >
-        <template #actions>
-          <UButton
-            :to="`/order/${order.order_number}`"
-            color="warning"
-            variant="outline"
-            size="sm"
-            class="mt-3"
-          >
-            Buka Instruksi Pembayaran
-          </UButton>
-        </template>
-      </UAlert>
     </template>
   </div>
 </template>

@@ -1,6 +1,6 @@
 # Frontend Boilerplate — Nuxt 4 + Nuxt UI
 
-Boilerplate frontend **Nuxt 4** dengan **Nuxt UI**, Tailwind CSS, TypeScript, dan contoh modul CRUD (`reference/category`) sebagai acuan menambahkan fitur baru.
+Boilerplate frontend **Nuxt 4** dengan **Nuxt UI**, Tailwind CSS, dan TypeScript sebagai acuan menambahkan fitur baru.
 
 ## Stack teknis
 
@@ -78,6 +78,8 @@ Alur: daftar membuat akun client, client upload CV, admin review dan membuat pen
 
 Endpoint backend yang dipakai: `POST /v1/auth/login`, `POST /v1/auth/register`, `GET /v1/auth/me`.
 
+Cookie auth bernama `qli_auth_token`, dipakai bersama web dan cms — mengganti namanya akan melogout semua pengguna.
+
 ## Struktur ringkas
 
 ```
@@ -92,26 +94,15 @@ types/           # Tipe data domain
 utils/           # Helper format & UI
 ```
 
-## Modul contoh
-
-Modul **Kategori** (`/reference/category`) mendemonstrasikan pola standar:
-
-| File | Deskripsi |
-|------|-----------|
-| `pages/reference/category/index.vue` | Daftar data dengan pagination, pencarian, dan CRUD modal |
-| `pages/reference/category/[code].vue` | Halaman detail |
-| `composables/useApi.ts` | HTTP helper: `apiFetch`, `apiPost`, `apiPatch`, `apiDelete` |
-| `types/category.ts` | Tipe data `CategoryRow` dan `CategoryDetailRow` |
-
-### Menambah modul baru
+## Menambah modul baru
 
 1. Buat tipe data di `types/<nama-modul>.ts`.
-2. Buat halaman daftar di `pages/<nama-modul>/index.vue` (ikuti pola kategori).
+2. Buat halaman daftar di `pages/<nama-modul>/index.vue`.
 3. Buat halaman detail di `pages/<nama-modul>/[code].vue` (opsional).
 4. Daftarkan menu di `layouts/app-sidebar.vue` pada array `navSections`.
 5. Tambahkan shortcut di `pages/dashboard.vue` pada array `featureShortcuts` (opsional).
 
-### Pola CRUD
+## Pola CRUD
 
 ```ts
 const { apiFetch, apiPost, apiPatch, apiDelete } = useApi()

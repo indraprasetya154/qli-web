@@ -4,6 +4,7 @@ import type {
   LoginPayload,
   RegisterPayload,
 } from '~/types/auth'
+import { apiErrorHttpStatus } from '~/utils/apiFormat'
 import { AUTH_TOKEN_COOKIE, useApi } from './useApi'
 
 const TOKEN_MAX_AGE = 60 * 60 * 24 * 7
@@ -61,8 +62,10 @@ export function useAuth() {
       const response = await apiFetch<{ data: AuthUser }>('/v1/auth/me')
       user.value = response.data
       return true
-    } catch {
-      clearSession()
+    } catch (e) {
+      if (apiErrorHttpStatus(e) === 401) {
+        clearSession()
+      }
       return false
     }
   }

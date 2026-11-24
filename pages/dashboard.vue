@@ -19,12 +19,6 @@ const featureShortcuts = [
     to: '/clients',
     icon: 'i-heroicons-users',
   },
-  {
-    title: 'Kategori',
-    description: 'Kelola data referensi kategori.',
-    to: '/reference/category',
-    icon: 'i-heroicons-tag',
-  },
 ]
 </script>
 

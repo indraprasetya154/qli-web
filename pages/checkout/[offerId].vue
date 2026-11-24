@@ -6,7 +6,7 @@ import type { PublicOrder, PublicPaymentAccount } from '~/types/order'
 import { apiFetchErrorMessage } from '~/utils/apiFormat'
 import { formatDateTimeDmyHm } from '~/utils/dateFormat'
 import { isOfferOrderable, OFFER_STATUS_LABEL, offerStatusColor } from '~/utils/offer'
-import { formatRupiah, rememberOrderEmail } from '~/utils/order'
+import { formatRupiah } from '~/utils/order'
 
 definePageMeta({ layout: 'app-sidebar', middleware: ['client'] })
 
@@ -186,8 +186,7 @@ async function submit() {
       idempotency_key: idempotencyKey.value,
     })
 
-    rememberOrderEmail(response.data.order_number, response.data.customer.email)
-    await navigateTo(`/order/${response.data.order_number}`)
+    await navigateTo(`/client/orders/${response.data.id}`, { replace: true })
   } catch (e) {
     errorMessage.value = apiFetchErrorMessage(e)
   } finally {

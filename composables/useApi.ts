@@ -16,7 +16,7 @@ export interface PaginatedResponse<T> {
   data: T[]
 }
 
-export const AUTH_TOKEN_COOKIE = 'auth_token'
+export const AUTH_TOKEN_COOKIE = 'qli_auth_token'
 
 export function joinApiUrl(base: string, path: string): string {
   const trimmedBase = base.replace(/\/$/, '')
@@ -52,7 +52,8 @@ export function useApi() {
       })
       return result as T
     } catch (e) {
-      if (apiErrorHttpStatus(e) === 401) {
+      const status = apiErrorHttpStatus(e)
+      if (status === 401) {
         token.value = null
       }
       throw e

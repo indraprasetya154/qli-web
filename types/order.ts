@@ -26,6 +26,7 @@ export interface PublicOrder {
   payment_status: PaymentStatus
   expires_at: string | null
   payment_at: string | null
+  active_until: string | null
   created_at: string | null
   customer: {
     name: string
@@ -37,6 +38,7 @@ export interface PublicOrder {
     name: string
     description: string | null
     period: string | null
+    duration_months: number
     features: string[]
   } | null
   payment_account: {
@@ -60,6 +62,7 @@ export interface PublicPackage {
   name: string
   description: string | null
   period: string | null
+  duration_months: number
   features: string[]
   is_featured: boolean
 }

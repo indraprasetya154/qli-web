@@ -5,6 +5,7 @@ export interface OfferPackage {
   name: string
   description: string | null
   period: string | null
+  duration_months: number
   features: string[]
   is_featured?: boolean
 }
