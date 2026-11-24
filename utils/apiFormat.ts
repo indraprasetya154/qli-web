@@ -58,6 +58,15 @@ export function apiIsConflictError(err: unknown): boolean {
   return c === 409 || c === '409'
 }
 
+/** HTTP 403 atau `code: 403` di body respons (akses ditolak). */
+export function apiIsForbiddenError(err: unknown): boolean {
+  if (apiErrorHttpStatus(err) === 403) return true
+  const data = getErrorPayload(err)
+  if (!data) return false
+  const c = data.code
+  return c === 403 || c === '403'
+}
+
 export function apiFetchErrorMessage(err: unknown): string {
   if (!err) return ''
 

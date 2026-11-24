@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, reactive, ref } from 'vue'
 import type { CvReview, CvStatus } from '~/types/cv'
-import { apiFetchErrorMessage, apiIsConflictError } from '~/utils/apiFormat'
+import { apiFetchErrorMessage, apiIsConflictError, apiIsForbiddenError } from '~/utils/apiFormat'
 import { formatDateDmy } from '~/utils/dateFormat'
 
 definePageMeta({ layout: 'app-sidebar', middleware: ['client'] })
@@ -113,7 +113,13 @@ async function submitAnswer(feedbackId: string) {
     answers[feedbackId] = ''
     await refresh()
   } catch (e) {
-    answerError.value = apiFetchErrorMessage(e)
+    if (apiIsForbiddenError(e)) {
+      answerError.value =
+        'Masukan ini belum terbuka. Selesaikan pembayaran paket untuk membuka semua masukan.'
+      await refresh()
+    } else {
+      answerError.value = apiFetchErrorMessage(e)
+    }
   } finally {
     answeringId.value = ''
   }
